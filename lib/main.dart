@@ -144,6 +144,7 @@ class _NovelContentState extends State<NovelContent> {
   final String title;
   final Map<String, String> chapterInfo;
   String novelContent;
+  var fontSize = 18.0;
 
   _NovelContentState(this.title, this.chapterInfo);
 
@@ -155,6 +156,20 @@ class _NovelContentState extends State<NovelContent> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(title),
+        actions: <Widget>[
+          new IconButton(
+              icon: new Icon(Icons.remove),
+              onPressed: () {
+                fontSize--;
+                setState(() {});
+              }),
+          new IconButton(
+              icon: new Icon(Icons.add),
+              onPressed: () {
+                fontSize++;
+                setState(() {});
+              })
+        ],
       ),
       body: _buildContent(),
     );
@@ -168,7 +183,7 @@ class _NovelContentState extends State<NovelContent> {
           new ListTile(
             title: new Text(
               novelContent,
-              style: new TextStyle(fontSize: 18.0),
+              style: new TextStyle(fontSize: fontSize),
             ),
           )
         ],
