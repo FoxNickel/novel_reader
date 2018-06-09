@@ -383,7 +383,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.foxnickel.novelReader;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.foxnickel.yuanzun;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -407,7 +407,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.foxnickel.novelReader;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.foxnickel.yuanzun;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VERSIONING_SYSTEM = "apple-generic";
 			};

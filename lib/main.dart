@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 
 final appTitle = "元尊";
+var fontSize = 18.0;
 
 void main() => runApp(new NovelApp());
 
@@ -146,7 +147,6 @@ class _NovelContentState extends State<NovelContent> {
   final String title;
   final Map<String, String> chapterInfo;
   String novelContent;
-  var fontSize = 18.0;
 
   _NovelContentState(this.title, this.chapterInfo);
 
