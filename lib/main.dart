@@ -31,8 +31,12 @@ class _NovelStateState extends State<NovelList> {
 
   @override
   Widget build(BuildContext context) {
-    // 获取章节信息
-    getChapterInfo();
+    if (chapterNameList == null) {
+      // 如果章节信息为空就获取章节信息
+      // 不能不判断，因为获取信息之后会调用setstate，又调用getChapterInfo方法，然后形成死循环
+      // 因此，当获取到章节信息之就不去再获取了
+      getChapterInfo();
+    }
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Nover Reader"),
@@ -90,8 +94,8 @@ class _NovelStateState extends State<NovelList> {
       Iterable<Match> matches = regExp.allMatches(responseBody);
       // 获取章节名称和链接，存入对应数组
       for (Match m in matches) {
-        /*print(m.group(2));
-        print(m.group(1));*/
+        // print(m.group(2));
+        // print(m.group(1));
         chapterInfo[m.group(2)] = "$host${m.group(1)}";
         chapterNameList.add(m.group(2));
         chapterUrlList.add(m.group(1));
@@ -124,18 +128,59 @@ class NovelContent extends StatefulWidget {
 class _NovelContentState extends State<NovelContent> {
   final String title;
   final Map<String, String> chapterInfo;
+  String novelContent;
 
   _NovelContentState(this.title, this.chapterInfo);
 
   @override
   Widget build(BuildContext context) {
+    if (novelContent == null) {
+      getChapterContent();
+    }
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(title),
       ),
-      body: new Center(
-        child: new Text(chapterInfo[title]),
-      ),
+      body: _buildContent(),
     );
+  }
+
+  // 构建小说内容
+  Widget _buildContent() {
+    if (novelContent != null) {
+      return new ListView(
+        children: <Widget>[
+          new ListTile(
+            title: new Text(novelContent),
+          )
+        ],
+      );
+    } else {
+      return new Center(
+        child: new Text("正在加载..."),
+      );
+    }
+  }
+
+  void getChapterContent() async {
+    // 异步发起网络请求获取html界面
+    var httpClient = new HttpClient();
+    var request = await httpClient.getUrl(Uri.parse(chapterInfo[title]));
+    var response = await request.close();
+    var responseBody = await response.transform(utf8.decoder).join();
+
+    if (responseBody != null) {
+      //print(responseBody);
+
+      RegExp regExp = new RegExp('<div id="content">(.*?)</div>');
+      Iterable<Match> matches = regExp.allMatches(responseBody);
+      for (Match m in matches) {
+        // print(m.group(1));
+        novelContent =
+            m.group(1).replaceAll("&nbsp;", " ").replaceAll("<br />", "\n");
+      }
+
+      setState(() {});
+    }
   }
 }
