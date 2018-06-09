@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 void main() => runApp(new NovelApp());
 
@@ -13,16 +16,23 @@ class NovelApp extends StatelessWidget {
   }
 }
 
+// 小说列表页
 class NovelList extends StatefulWidget {
   @override
   _NovelStateState createState() => new _NovelStateState();
 }
 
 class _NovelStateState extends State<NovelList> {
+  final host = "https://www.xxbiquge.com";
   final chapterUrl = "https://www.xxbiquge.com/78_78513/";
+  List<String> chapterNameList;
+  List<String> chapterUrlList;
+  Map<String, String> chapterInfo;
 
   @override
   Widget build(BuildContext context) {
+    // 获取章节信息
+    getChapterInfo();
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Nover Reader"),
@@ -38,13 +48,94 @@ class _NovelStateState extends State<NovelList> {
     );
   }
 
-  Widget _buildChapterList() {
-    return new ListView.builder(
-        padding: const EdgeInsets.all(12.0),
-        itemBuilder: (context, i) {
-          return new ListTile(
-            title: new Text(chapterUrl),
-          );
+  // 构建列表每一行，也就是列表每一行的布局
+  Widget _buildRow(BuildContext context, String item) {
+    return new ListTile(
+        title: new Text(item),
+        onTap: () {
+          _navigateToContent(item);
         });
+  }
+
+  // 构建listView
+  Widget _buildChapterList() {
+    if (chapterNameList != null) {
+      // 加载到了章节数据
+      Iterable<Widget> listTitles = chapterNameList.map((String item) {
+        return _buildRow(context, item);
+      });
+      return new ListView(
+        children: listTitles.toList(),
+      );
+    } else {
+      // 正在加载章节数据
+      return new Center(child: new Text("正在加载..."));
+    }
+  }
+
+  // 获取章节信息
+  void getChapterInfo() async {
+    // 异步发起网络请求获取html界面
+    var httpClient = new HttpClient();
+    var request = await httpClient.getUrl(Uri.parse(chapterUrl));
+    var response = await request.close();
+    var responseBody = await response.transform(utf8.decoder).join();
+
+    // 获取到了内容，进行正则表达式分割，获取章节名称和链接
+    if (responseBody != null) {
+      chapterInfo = new Map<String, String>();
+      chapterNameList = new List<String>();
+      chapterUrlList = new List<String>();
+      RegExp regExp = new RegExp('<dd>.*?href="(.*?)">(.*?)</a></dd>');
+      Iterable<Match> matches = regExp.allMatches(responseBody);
+      // 获取章节名称和链接，存入对应数组
+      for (Match m in matches) {
+        /*print(m.group(2));
+        print(m.group(1));*/
+        chapterInfo[m.group(2)] = "$host${m.group(1)}";
+        chapterNameList.add(m.group(2));
+        chapterUrlList.add(m.group(1));
+      }
+      // 获取到章节信息之后通知页面更新
+      setState(() {});
+    }
+  }
+
+  // 跳转到详情页
+  void _navigateToContent(String title) {
+    Navigator.of(context).push(new MaterialPageRoute(builder: (context) {
+      return new NovelContent(title, chapterInfo);
+    }));
+  }
+}
+
+// 小说详情页
+class NovelContent extends StatefulWidget {
+  final String title;
+  final Map<String, String> chapterInfo;
+
+  NovelContent(this.title, this.chapterInfo);
+
+  @override
+  _NovelContentState createState() =>
+      new _NovelContentState(title, chapterInfo);
+}
+
+class _NovelContentState extends State<NovelContent> {
+  final String title;
+  final Map<String, String> chapterInfo;
+
+  _NovelContentState(this.title, this.chapterInfo);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text(title),
+      ),
+      body: new Center(
+        child: new Text(chapterInfo[title]),
+      ),
+    );
   }
 }
