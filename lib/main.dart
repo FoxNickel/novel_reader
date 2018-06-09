@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
+final appTitle = "元尊";
+
 void main() => runApp(new NovelApp());
 
 class NovelApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: "Novel Reader",
+      title: appTitle,
       home: new NovelList(),
       theme: new ThemeData(primaryColor: Colors.white),
     );
@@ -41,7 +43,7 @@ class _NovelStateState extends State<NovelList> {
     }
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Nover Reader"),
+        title: new Text(appTitle),
         actions: <Widget>[
           new IconButton(
               icon: new Icon(Icons.vertical_align_bottom),
