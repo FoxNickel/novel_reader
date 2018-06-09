@@ -26,8 +26,10 @@ class _NovelStateState extends State<NovelList> {
   final host = "https://www.xxbiquge.com";
   final chapterUrl = "https://www.xxbiquge.com/78_78513/";
   List<String> chapterNameList;
+  List<String> chapterNameListReversed;
   List<String> chapterUrlList;
   Map<String, String> chapterInfo;
+  bool reverse = true;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,11 @@ class _NovelStateState extends State<NovelList> {
         title: new Text("Nover Reader"),
         actions: <Widget>[
           new IconButton(
-              icon: new Icon(Icons.vertical_align_bottom), onPressed: null)
+              icon: new Icon(Icons.vertical_align_bottom),
+              onPressed: () {
+                reverse = !reverse;
+                setState(() {});
+              })
         ],
       ),
       /*body: new Center(
@@ -65,9 +71,16 @@ class _NovelStateState extends State<NovelList> {
   Widget _buildChapterList() {
     if (chapterNameList != null) {
       // 加载到了章节数据
-      Iterable<Widget> listTitles = chapterNameList.map((String item) {
-        return _buildRow(context, item);
-      });
+      Iterable<Widget> listTitles;
+      if (reverse) {
+        listTitles = chapterNameListReversed.map((String item) {
+          return _buildRow(context, item);
+        });
+      } else {
+        listTitles = chapterNameList.map((String item) {
+          return _buildRow(context, item);
+        });
+      }
       return new ListView(
         children: listTitles.toList(),
       );
@@ -89,6 +102,7 @@ class _NovelStateState extends State<NovelList> {
     if (responseBody != null) {
       chapterInfo = new Map<String, String>();
       chapterNameList = new List<String>();
+      chapterNameListReversed = new List<String>();
       chapterUrlList = new List<String>();
       RegExp regExp = new RegExp('<dd>.*?href="(.*?)">(.*?)</a></dd>');
       Iterable<Match> matches = regExp.allMatches(responseBody);
@@ -100,6 +114,7 @@ class _NovelStateState extends State<NovelList> {
         chapterNameList.add(m.group(2));
         chapterUrlList.add(m.group(1));
       }
+      chapterNameListReversed = chapterNameList.reversed.toList();
       // 获取到章节信息之后通知页面更新
       setState(() {});
     }
@@ -151,7 +166,10 @@ class _NovelContentState extends State<NovelContent> {
       return new ListView(
         children: <Widget>[
           new ListTile(
-            title: new Text(novelContent),
+            title: new Text(
+              novelContent,
+              style: new TextStyle(fontSize: 18.0),
+            ),
           )
         ],
       );
