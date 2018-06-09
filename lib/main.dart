@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-final appTitle = "元尊";
+final appTitle = "圣墟";
 var fontSize = 18.0;
 
 void main() => runApp(new NovelApp());
@@ -27,7 +27,7 @@ class NovelList extends StatefulWidget {
 
 class _NovelStateState extends State<NovelList> {
   final host = "https://www.xxbiquge.com";
-  final chapterUrl = "https://www.xxbiquge.com/78_78513/";
+  final chapterUrl = "https://www.xxbiquge.com/74_74821/";
   List<String> chapterNameList;
   List<String> chapterNameListReversed;
   List<String> chapterUrlList;
