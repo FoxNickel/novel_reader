@@ -1,9 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
-final appTitle = "元尊";
+String appTitle = "元尊";
+const String KEY_LAST_READ = "last_read_history";
 var fontSize = 18.0;
 
 void main() => runApp(new NovelApp());
@@ -41,6 +42,7 @@ class _NovelStateState extends State<NovelList> {
       // 不能不判断，因为获取信息之后会调用setstate，又调用getChapterInfo方法，然后形成死循环
       // 因此，当获取到章节信息之就不去再获取了
       getChapterInfo();
+      _getReadHistory();
     }
     return new Scaffold(
       appBar: new AppBar(
@@ -61,13 +63,31 @@ class _NovelStateState extends State<NovelList> {
     );
   }
 
+  void _getReadHistory() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String readHistory = preferences.getString(KEY_LAST_READ);
+    print(readHistory);
+    if(readHistory!=null){
+      setState(() {
+      appTitle = readHistory;
+    });
+    }
+  }
+
   // 构建列表每一行，也就是列表每一行的布局
   Widget _buildRow(BuildContext context, String item) {
     return new ListTile(
         title: new Text(item),
         onTap: () {
           _navigateToContent(item);
+          _saveReadHistory(item);
         });
+  }
+
+  // 保存最近阅读的章节名称到SharedPreference
+  void _saveReadHistory(String chapterName) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString(KEY_LAST_READ, chapterName);
   }
 
   // 构建listView
