@@ -27,8 +27,8 @@ class NovelList extends StatefulWidget {
 }
 
 class _NovelStateState extends State<NovelList> {
-  final host = "https://www.xxbiquge.com";
-  final chapterUrl = "https://www.xxbiquge.com/74_74821/";
+  final host = "https://m.qu.la/";
+  final chapterUrl = "https://m.qu.la/booklist/24868.html";
   List<String> chapterNameList;
   List<String> chapterNameListReversed;
   List<String> chapterUrlList;
@@ -67,10 +67,10 @@ class _NovelStateState extends State<NovelList> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String readHistory = preferences.getString(KEY_LAST_READ);
     print(readHistory);
-    if(readHistory!=null){
+    if (readHistory != null) {
       setState(() {
-      appTitle = readHistory;
-    });
+        appTitle = readHistory;
+      });
     }
   }
 
@@ -127,15 +127,19 @@ class _NovelStateState extends State<NovelList> {
       chapterNameList = new List<String>();
       chapterNameListReversed = new List<String>();
       chapterUrlList = new List<String>();
-      RegExp regExp = new RegExp('<dd>.*?href="(.*?)">(.*?)</a></dd>');
+      RegExp regExp = new RegExp('<p>(.*?)</p>');
       Iterable<Match> matches = regExp.allMatches(responseBody);
       // 获取章节名称和链接，存入对应数组
       for (Match m in matches) {
-        // print(m.group(2));
-        // print(m.group(1));
-        chapterInfo[m.group(2)] = "$host${m.group(1)}";
-        chapterNameList.add(m.group(2));
-        chapterUrlList.add(m.group(1));
+        String content = m.group(1);
+        String name =
+            content.substring(45, content.length - 4).replaceAll('>', '');
+        String url = '$host${content.substring(20, 44)}'.replaceAll('"', '');
+        print(name);
+        print(url);
+        chapterNameList.add(name);
+        chapterUrlList.add(url);
+        chapterInfo[name] = url;
       }
       chapterNameListReversed = chapterNameList.reversed.toList();
       // 获取到章节信息之后通知页面更新
@@ -219,6 +223,7 @@ class _NovelContentState extends State<NovelContent> {
 
   void getChapterContent() async {
     // 异步发起网络请求获取html界面
+    print('url${chapterInfo[title]}');
     var httpClient = new HttpClient();
     var request = await httpClient.getUrl(Uri.parse(chapterInfo[title]));
     var response = await request.close();
@@ -227,12 +232,11 @@ class _NovelContentState extends State<NovelContent> {
     if (responseBody != null) {
       //print(responseBody);
 
-      RegExp regExp = new RegExp('<div id="content">(.*?)</div>');
+      RegExp regExp = new RegExp('.*<br/>.*<br/>.*');
       Iterable<Match> matches = regExp.allMatches(responseBody);
       for (Match m in matches) {
-        // print(m.group(1));
         novelContent =
-            m.group(1).replaceAll("&nbsp;", " ").replaceAll("<br />", "\n");
+            m.group(0).replaceAll("&nbsp;", " ").replaceAll("<br/>", "\n");
       }
 
       setState(() {});
